@@ -1,0 +1,1777 @@
+install feature-set fabricpath
+feature-set fabricpath
+hostname VL-MD-TVMRNX002
+
+no feature telnet
+feature sftp-server
+cfs ipv4 distribute
+cfs eth distribute
+feature bgp
+feature pim
+feature interface-vlan
+feature hsrp
+feature lacp
+feature vpc
+feature lldp
+feature fex
+feature bfd
+
+logging level virtual-service 5
+username admin password 5 $1$IlH/LX1d$JVFbh.N8Mw8VaoW60dfay0  role network-admin
+no password strength-check
+
+banner motd #Nexus 6000 Switch
+#
+
+ip domain-lookup
+ip access-list grt-in-acl
+  statistics per-entry
+  10 permit tcp any gt 1024 66.130.63.128/27 eq www
+  20 permit igmp any any
+  30 permit udp any any
+  40 permit pim any any
+ip access-list management-acl
+  statistics per-entry
+  10 permit ip 10.23.121.88/29 10.208.104.12/32
+  20 permit ip 24.200.243.96/29 10.208.104.12/32
+  30 permit ip 24.200.243.104/29 10.208.104.12/32
+  40 permit ip 172.26.0.0/16 10.208.104.12/32
+  50 permit ip 172.27.0.0/19 10.208.104.12/32
+  60 permit ip 192.168.169.0/24 10.208.104.12/32
+  70 permit ip 10.23.0.0/16 10.208.104.12/32
+fex 111
+  pinning max-links 1
+  description "FEX1-ENCLOSURE-A"
+fex 112
+  pinning max-links 1
+  description "FEX2-ENCLOSURE-A"
+fex 113
+  pinning max-links 1
+  description "FEX1-ENCLOSURE-B"
+fex 114
+  pinning max-links 1
+  description "FEX2-ENCLOSURE-B"
+fex 115
+  pinning max-links 1
+  description "FEX1-ENCLOSURE-C"
+fex 116
+  pinning max-links 1
+  description "FEX2-ENCLOSURE-C"
+fex 117
+  pinning max-links 1
+  description "FEX1-ENCLOSURE-D"
+fex 118
+  pinning max-links 1
+  description "FEX2-ENCLOSURE-D"
+bfd interval 400 min_rx 300 multiplier 3
+snmp-server contact "support@vantrix.com" 
+snmp-server location  "Dorion Prod Cache"
+snmp-server user admin network-admin auth md5 0x48600a113d97a28aa1d0baa099f04622 priv 0x48600a113d97a28aa1d0baa099f04622 localizedkey
+snmp-server host 10.208.105.180 traps version 2c v4ntr1xpubl1c 
+snmp-server host 10.208.105.180 use-vrf drm
+snmp-server host 10.208.105.180 source-interface Vlan2
+snmp-server enable traps callhome event-notify
+snmp-server enable traps callhome smtp-send-fail
+snmp-server enable traps cfs state-change-notif
+snmp-server enable traps cfs merge-failure
+snmp-server enable traps aaa server-state-change
+snmp-server enable traps hsrp state-change
+snmp-server enable traps upgrade UpgradeOpNotifyOnCompletion
+snmp-server enable traps upgrade UpgradeJobStatusNotify
+snmp-server enable traps feature-control FeatureOpStatusChange
+snmp-server enable traps sysmgr cseFailSwCoreNotifyExtended
+snmp-server enable traps config ccmCLIRunningConfigChanged
+snmp-server enable traps snmp authentication
+snmp-server enable traps link cisco-xcvr-mon-status-chg
+snmp-server enable traps vtp notifs
+snmp-server enable traps vtp vlancreate
+snmp-server enable traps vtp vlandelete
+snmp-server enable traps bridge newroot
+snmp-server enable traps bridge topologychange
+snmp-server enable traps stpx inconsistency
+snmp-server enable traps stpx root-inconsistency
+snmp-server enable traps stpx loop-inconsistency
+snmp-server enable traps poe portonoff
+snmp-server enable traps poe pwrusageon
+snmp-server enable traps poe pwrusageoff
+snmp-server enable traps poe police
+snmp-server community public group network-operator
+ntp server 192.168.131.34 prefer use-vrf drm
+ntp server 192.168.131.35 use-vrf drm
+ntp source-interface  Vlan21
+
+vrf context default
+vrf context drm
+  ip pim ssm range 232.0.0.0/8
+vrf context management
+vlan configuration 20
+  no ip igmp snooping
+  ip igmp snooping last-member-query-interval 20
+vlan 1
+  mode fabricpath
+vlan 2
+  name OAM
+  mode fabricpath
+vlan 3
+  name STREAMING
+  mode fabricpath
+vlan 4
+  name FLUX-ILLICO
+  mode fabricpath
+vlan 5
+  name PUBLIC-SERVICES
+  mode fabricpath
+vlan 6
+  name INGESTION
+  mode fabricpath
+vlan 10
+  name BACKUP
+  mode fabricpath
+vlan 20
+  name MULTICAST
+  mode fabricpath
+vlan 21
+  name SERVICES
+  mode fabricpath
+vlan 22
+  name PERFORMACE-REQUESTERS
+  mode fabricpath
+vlan 31
+  name iBGP-INTERCXN
+  mode fabricpath
+vlan 81
+  name GRT-BGP-2
+vlan 82
+  name OAM-BGP-2
+vlan 83
+  name VTS-BGP-2
+vlan 84
+  name MEZ-BGP-2
+vlan 85
+  name BKP-BGP-2
+fabricpath topology 1
+  member vlan 20
+spanning-tree vlan 1-100 priority 24576
+ip prefix-list bkp-inbound-policy seq 5 deny 0.0.0.0/0 
+ip prefix-list bkp-inbound-policy seq 10 permit 10.23.192.4/30 
+ip prefix-list bkp-inbound-policy seq 20 permit 10.23.194.88/30 
+ip prefix-list bkp-inbound-policy seq 30 permit 10.23.194.92/30 
+ip prefix-list bkp-inbound-policy seq 40 permit 10.23.194.244/30 
+ip prefix-list bkp-inbound-policy seq 50 permit 10.23.197.216/30 
+ip prefix-list bkp-outbound-policy seq 5 permit 10.23.202.0/28 
+ip prefix-list grt-inbound-policy seq 5 permit 0.0.0.0/0 
+ip prefix-list grt-outbound-policy seq 10 permit 66.130.63.192/28 
+ip prefix-list grt-outbound-policy seq 20 permit 66.130.63.128/27 
+ip prefix-list mez-inbound-policy seq 5 deny 0.0.0.0/0 
+ip prefix-list mez-inbound-policy seq 10 permit 10.154.70.128/26 
+ip prefix-list mez-inbound-policy seq 20 permit 10.154.70.192/26 
+ip prefix-list mez-outbound-policy seq 5 permit 10.208.100.240/28 
+ip prefix-list oam-inbound-policy seq 5 deny 0.0.0.0/0 
+ip prefix-list oam-inbound-policy seq 10 permit 10.23.121.88/29 
+ip prefix-list oam-inbound-policy seq 20 permit 24.200.243.96/29 
+ip prefix-list oam-inbound-policy seq 30 permit 24.200.243.104/29 
+ip prefix-list oam-inbound-policy seq 40 permit 172.26.0.0/16 
+ip prefix-list oam-inbound-policy seq 50 permit 172.27.0.0/19 
+ip prefix-list oam-inbound-policy seq 60 permit 192.168.169.0/24 
+ip prefix-list oam-inbound-policy seq 70 permit 10.23.0.0/16 
+ip prefix-list oam-inbound-policy seq 80 permit 10.247.0.0/16 
+ip prefix-list oam-outbound-policy seq 5 permit 10.208.104.0/23 
+ip prefix-list vts-inbound-policy seq 5 deny 0.0.0.0/0 
+ip prefix-list vts-inbound-policy seq 10 permit 10.23.121.96/29 
+ip prefix-list vts-inbound-policy seq 20 permit 10.23.128.26/32 
+ip prefix-list vts-inbound-policy seq 30 permit 10.23.128.50/32 
+ip prefix-list vts-inbound-policy seq 40 permit 10.254.75.0/24 
+ip prefix-list vts-inbound-policy seq 50 permit 172.26.74.155/32 
+ip prefix-list vts-inbound-policy seq 60 permit 172.26.74.156/32 
+ip prefix-list vts-inbound-policy seq 70 permit 172.26.75.93/32 
+ip prefix-list vts-inbound-policy seq 80 permit 172.26.75.94/32 
+ip prefix-list vts-inbound-policy seq 90 permit 172.26.93.211/32 
+ip prefix-list vts-inbound-policy seq 100 permit 172.26.99.140/32 
+ip prefix-list vts-outbound-policy seq 5 permit 10.208.100.208/28 
+vpc domain 1
+  peer-keepalive destination 192.168.128.10 source 192.168.128.11
+  delay restore 150
+  fabricpath switch-id 1
+port-profile default max-ports 512
+
+
+interface Vlan1
+  no shutdown
+  vrf member drm
+  ip address 192.168.128.11/23
+
+interface Vlan2
+  description OAM-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 10.208.104.12/23
+  hsrp 2 
+    ip 10.208.104.1 
+
+interface Vlan3
+  description STREAMING-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 66.130.63.131/27
+  hsrp 3 
+    ip 66.130.63.129 
+
+interface Vlan4
+  description FLUX-ILLICO-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 10.208.100.211/28
+  hsrp 4 
+    ip 10.208.100.209 
+
+interface Vlan5
+  description PUBLIC-SERVICES-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 66.130.63.195/28
+  hsrp 5 
+    ip 66.130.63.193 
+
+interface Vlan6
+  description INGESTION-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 10.208.100.243/28
+  hsrp 6 
+    ip 10.208.100.241 
+
+interface Vlan10
+  description BACKUP-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 10.23.202.3/28
+  hsrp 10 
+    ip 10.23.202.1 
+
+interface Vlan20
+  description MULTICAST-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 192.168.130.12/24
+  ip pim sparse-mode
+  ip pim bfd-instance
+  ip pim dr-priority 10
+  ip igmp version 3
+  ip igmp last-member-query-response-time 20
+  hsrp 20 
+    ip 192.168.130.1 
+
+interface Vlan21
+  description SERVICES-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 192.168.131.12/24
+  hsrp 21 
+    ip 192.168.131.1 
+
+interface Vlan22
+  description PERFTEST-GATEWAY
+  no shutdown
+  vrf member drm
+  ip address 192.168.132.3/24
+  hsrp 22 
+    ip 192.168.132.1 
+
+interface Vlan31
+  description iBGP-INTERCONNECTION
+  no shutdown
+  vrf member drm
+  ip address 192.168.144.2/30
+  ip pim sparse-mode
+  ip igmp version 3
+
+interface Vlan81
+  description GRT-BGP-INTERCONNECTION-VL-MD-RI008-VL-MD-TVMRNX002
+  no shutdown
+  vrf member drm
+  no ip redirects
+  ip address 10.170.182.146/30
+  ip pim sparse-mode
+  ip igmp version 3
+
+interface Vlan82
+  description OAM-BGP-INTERCONNECTION-VL-MD-RI008-VL-MD-TVMRNX002
+  no shutdown
+  vrf member drm
+  no ip redirects
+  ip address 10.170.182.150/30
+
+interface Vlan83
+  description VTS-BGP-INTERCONNECTION-VL-MD-RI008-VL-MD-TVMRNX002
+  no shutdown
+  vrf member drm
+  no ip redirects
+  ip address 10.170.182.162/30
+
+interface Vlan84
+  description MEZ-BGP-INTERCONNECTION-VL-MD-RI008-VL-MD-TVMRNX002
+  no shutdown
+  vrf member drm
+  no ip redirects
+  ip address 10.170.182.166/30
+
+interface Vlan85
+  description BACKUP-BGP-INTERCONNECTION-VL-MD-RI008-VL-MD-TVMRNX002
+  no shutdown
+  vrf member drm
+  ip address 10.23.202.22/30
+
+interface port-channel9
+  description A10-1
+  switchport mode trunk
+  switchport trunk allowed vlan 3-4,6,21
+  speed 10000
+  vpc 9
+
+interface port-channel10
+  description A10-2
+  switchport mode trunk
+  switchport trunk allowed vlan 3-4,6,21
+  speed 10000
+  vpc 10
+
+interface port-channel11
+  description OAM1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,10,21
+
+interface port-channel12
+  description MONGO1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel13
+  description LTRXLTV1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel14
+  description LTRXLTV2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel15
+  description LTRXLTV3
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel16
+  description LTRXLTV4
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel17
+  description RMSS1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel18
+  description RMSS2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel19
+  description STORAGE1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel21
+  description STORAGE2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel23
+  description STORAGE3
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel25
+  description STORAGE4
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel30
+  switchport mode fabricpath
+  speed 40000
+  vpc peer-link
+  fabricpath topology 1
+
+interface port-channel31
+  description OAM2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,10,21
+
+interface port-channel32
+  description MONGO2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel33
+  description LTRXLTV5
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel34
+  description LTRXLTV6
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel35
+  description LTRXLTV7
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel36
+  description LTRXLTV8
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel37
+  description RMSS3
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel38
+  description RMSS4
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel39
+  description STORAGE5
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel41
+  description STORAGE6
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel43
+  description STORAGE7
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel45
+  description STORAGE8
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel51
+  description MP1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,21
+
+interface port-channel52
+  description PACKAGER1
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4-6,21
+
+interface port-channel53
+  description LTRXLTV9
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel54
+  description LTRXLTV10
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel55
+  description LTRXLTV11
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel56
+  description LTRXLTV12
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel57
+  description RMSS5
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel58
+  description RMSS6
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel59
+  description STORAGE9
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel61
+  description STORAGE10
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel63
+  description STORAGE11
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel65
+  description STORAGE12
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel71
+  description MP2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,21
+
+interface port-channel72
+  description PACKAGER2
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4-6,21
+
+interface port-channel73
+  description LTRXLTV13
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel74
+  description LTRXLTV14
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel75
+  description LTRXLTV15
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel76
+  description LTRXLTV16
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+
+interface port-channel77
+  description RMSS7
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel78
+  description RMSS8
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+
+interface port-channel79
+  description STORAGE13
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel81
+  description STORAGE14
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel83
+  description STORAGE15
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel85
+  description STORAGE16
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+
+interface port-channel91
+  description SYMKLOUD-CHASSIS1-TRAFFIC
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  speed 10000
+  vpc 91
+
+interface port-channel92
+  description SYMKLOUD-CHASSIS2-TRAFFIC
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  speed 10000
+  vpc 92
+
+interface port-channel93
+  description SYMKLOUD-CHASISS1-MNGT
+  switchport access vlan 2
+  speed 1000
+  vpc 93
+
+interface port-channel94
+  description SYMKLOUD-CHASISS2-MNGT
+  switchport access vlan 2
+  speed 1000
+  vpc 94
+
+interface port-channel96
+  description SYMKLOUD-CHASSIS4-TRAFFIC
+  switchport mode trunk
+  switchport trunk allowed vlan 1,3,22
+  speed 10000
+
+interface port-channel98
+  description SYMKLOUD-CHASSIS4-MNGT
+  switchport mode trunk
+  speed 1000
+
+interface port-channel111
+  switchport mode fex-fabric
+  fex associate 111
+  vpc 111
+
+interface port-channel112
+  description FEX2-ENCLOSUREA
+  switchport mode fex-fabric
+  fex associate 112
+  vpc 112
+
+interface port-channel113
+  description FEX1-ENCLOSUREB
+  switchport mode fex-fabric
+  fex associate 113
+  vpc 113
+
+interface port-channel114
+  description FEX2-ENCLOSUREB
+  switchport mode fex-fabric
+  fex associate 114
+  vpc 114
+
+interface port-channel115
+  description FEX1-ENCLOSUREC
+  switchport mode fex-fabric
+  fex associate 115
+  vpc 115
+
+interface port-channel116
+  description FEX2-ENCLOSUREC
+  switchport mode fex-fabric
+  fex associate 116
+  vpc 116
+
+interface port-channel117
+  description FEX1-ENCLOSURED
+  switchport mode fex-fabric
+  fex associate 117
+  vpc 117
+
+interface port-channel118
+  description FEX2-ENCLOSURED
+  switchport mode fex-fabric
+  fex associate 118
+  vpc 118
+
+interface port-channel552
+  switchport mode trunk
+  switchport trunk allowed vlan 81-85
+  speed 10000
+
+interface Ethernet1/1
+  description FEX1-PORT2-ENCLOSURE-A
+  switchport mode fex-fabric
+  fex associate 111
+  channel-group 111
+
+interface Ethernet1/2
+  description FEX2-PORT2-ENCLOSURE-A
+  switchport mode fex-fabric
+  fex associate 112
+  channel-group 112
+
+interface Ethernet1/3
+  description FEX1-PORT2-ENCLOSURE-B
+  switchport mode fex-fabric
+  fex associate 113
+  channel-group 113
+
+interface Ethernet1/4
+  description FEX2-PORT2-ENCLOSURE-B
+  switchport mode fex-fabric
+  fex associate 114
+  channel-group 114
+
+interface Ethernet1/5
+  description FEX1-PORT2-ENCLOSURE-C
+  switchport mode fex-fabric
+  fex associate 115
+  channel-group 115
+
+interface Ethernet1/6
+  description FEX2-PORT2-ENCLOSURE-C
+  switchport mode fex-fabric
+  fex associate 116
+  channel-group 116
+
+interface Ethernet1/7
+  description FEX1-PORT2-ENCLOSURE-D
+  switchport mode fex-fabric
+  fex associate 117
+  channel-group 117
+
+interface Ethernet1/8
+  description FEX2-PORT2-ENCLOSURE-D
+  switchport mode fex-fabric
+  fex associate 118
+  channel-group 118
+
+interface Ethernet1/9
+  description SWITCH2-PORT2/2-SYMKLOUD1
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 91 mode active
+
+interface Ethernet1/10
+  description SWITCH2-PORT2/2-SYMKLOUD2
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 92 mode active
+
+interface Ethernet1/11
+  switchport mode trunk
+  switchport trunk allowed vlan 3-4,6,21
+  channel-group 9 mode active
+
+interface Ethernet1/12
+  description A10-2-PORT10
+  switchport mode trunk
+  switchport trunk allowed vlan 3-4,6,21
+  channel-group 10 mode active
+
+interface Ethernet1/13
+  description ONBOARD-ADMIN-2-ENCLOSURE-A
+  switchport access vlan 2
+  speed 1000
+
+interface Ethernet1/14
+  description ONBOARD-ADMIN-2-ENCLOSURE-B
+  switchport access vlan 2
+  speed 1000
+
+interface Ethernet1/15
+  description ONBOARD-ADMIN-2-ENCLOSURE-C
+  switchport access vlan 2
+  speed 1000
+
+interface Ethernet1/16
+  description ONBOARD-ADMIN-2-ENCLOSURE-D
+  switchport access vlan 2
+  speed 1000
+
+interface Ethernet1/17
+  description MGMT-SWITCH-2-SYMKLOUD-1
+  switchport access vlan 2
+  speed 1000
+  channel-group 93 mode active
+
+interface Ethernet1/18
+  description MGMT-SWITCH-2-SYMKLOUD-2
+  switchport access vlan 2
+  speed 1000
+  channel-group 94 mode active
+
+interface Ethernet1/19
+  description MGMT-A10-2
+  switchport access vlan 2
+  speed 1000
+
+interface Ethernet1/20
+  switchport access vlan 20
+  speed 1000
+
+interface Ethernet1/21
+  description MGMT-SWITCH-1-SYMKLOUD-4
+  switchport mode trunk
+  switchport trunk allowed vlan 2
+  speed 1000
+
+interface Ethernet1/22
+  description MGMT-SWITCH-2-SYMKLOUD-4
+  switchport mode trunk
+  switchport trunk allowed vlan 2
+  speed 1000
+
+interface Ethernet1/23
+  description SWITCH1-PORT1/2-SYMKLOUD4
+  switchport mode trunk
+  switchport trunk allowed vlan 1,3,22
+
+interface Ethernet1/24
+  description SWITCH1-PORT2/2-SYMKLOUD4
+  switchport mode trunk
+  switchport trunk allowed vlan 1,3,22
+
+interface Ethernet1/25
+  switchport access vlan 20
+  speed 1000
+
+interface Ethernet1/26
+  shutdown
+
+interface Ethernet1/27
+  shutdown
+
+interface Ethernet1/28
+  shutdown
+
+interface Ethernet1/29
+  shutdown
+
+interface Ethernet1/30
+  shutdown
+
+interface Ethernet1/31
+  shutdown
+
+interface Ethernet1/32
+  shutdown
+
+interface Ethernet1/33
+  shutdown
+
+interface Ethernet1/34
+  shutdown
+
+interface Ethernet1/35
+  shutdown
+
+interface Ethernet1/36
+  shutdown
+
+interface Ethernet1/37
+  shutdown
+
+interface Ethernet1/38
+  shutdown
+
+interface Ethernet1/39
+  shutdown
+
+interface Ethernet1/40
+  shutdown
+
+interface Ethernet1/41
+  shutdown
+
+interface Ethernet1/42
+  shutdown
+
+interface Ethernet1/43
+  shutdown
+
+interface Ethernet1/44
+  description RI8-TenGigE0/7/0/0
+  switchport mode trunk
+  switchport trunk allowed vlan 81-85
+  channel-group 552 mode active
+
+interface Ethernet1/45
+  description RI8-TenGigE0/7/0/1
+  switchport mode trunk
+  switchport trunk allowed vlan 81-85
+  channel-group 552 mode active
+
+interface Ethernet1/46
+  description RI8-TenGigE0/7/0/2
+  switchport mode trunk
+  switchport trunk allowed vlan 81-85
+  channel-group 552 mode active
+
+interface Ethernet1/47
+  description RI8-TenGigE0/7/0/3
+  switchport mode trunk
+  switchport trunk allowed vlan 81-85
+  channel-group 552 mode active
+
+interface Ethernet1/48
+  shutdown
+
+interface Ethernet2/1
+  description NEXUS1-ETHERNET2/1
+  switchport mode fabricpath
+  channel-group 30
+
+interface Ethernet2/2
+  description NEXUS1-ETHERNET2/2
+  switchport mode fabricpath
+  channel-group 30
+
+interface Ethernet2/3
+  shutdown
+
+interface Ethernet2/4
+  shutdown
+
+interface mgmt0
+  vrf member management
+  ip address 192.168.128.11/23
+
+interface Ethernet111/1/1
+  description OAM1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,10,21
+  no logging event port link-status
+  no logging event port trunk-status
+  channel-group 11 mode active
+
+interface Ethernet111/1/2
+  description MONGO1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 12 mode active
+
+interface Ethernet111/1/3
+  description LTRX1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 13 mode active
+
+interface Ethernet111/1/4
+  description LTRX2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 14 mode active
+
+interface Ethernet111/1/5
+  description LTRX3-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 15 mode active
+
+interface Ethernet111/1/6
+  description LTRX4-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 16 mode active
+
+interface Ethernet111/1/7
+  description RMSS1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 17 mode active
+
+interface Ethernet111/1/8
+  description RMSS2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 18 mode active
+
+interface Ethernet111/1/9
+  description STORAGE1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 19 mode active
+
+interface Ethernet111/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet111/1/11
+  description STORAGE2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 21 mode active
+
+interface Ethernet111/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet111/1/13
+  description STORAGE3-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 23 mode active
+
+interface Ethernet111/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet111/1/15
+  description STORAGE4-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 25 mode active
+
+interface Ethernet111/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet112/1/1
+  description OAM1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,10,21
+  channel-group 11 mode active
+
+interface Ethernet112/1/2
+  description MONGO1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 12 mode active
+
+interface Ethernet112/1/3
+  description LTRX1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 13 mode active
+
+interface Ethernet112/1/4
+  description LTRX2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 14 mode active
+
+interface Ethernet112/1/5
+  description LTRX3-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 15 mode active
+
+interface Ethernet112/1/6
+  description LTRX4-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 16 mode active
+
+interface Ethernet112/1/7
+  description RMSS1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 17 mode active
+
+interface Ethernet112/1/8
+  description RMSS2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 18 mode active
+
+interface Ethernet112/1/9
+  description STORAGE1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 19 mode active
+
+interface Ethernet112/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet112/1/11
+  description STORAGE2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 21 mode active
+
+interface Ethernet112/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet112/1/13
+  description STORAGE3-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 23 mode active
+
+interface Ethernet112/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet112/1/15
+  description STORAGE4-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 25 mode active
+
+interface Ethernet112/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet113/1/1
+  description OAM2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,10,21
+  channel-group 31 mode active
+
+interface Ethernet113/1/2
+  description MONGO2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 32 mode active
+
+interface Ethernet113/1/3
+  description LTRX5-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 33 mode active
+
+interface Ethernet113/1/4
+  description LTRX6-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 34 mode active
+
+interface Ethernet113/1/5
+  description LTRX7-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 35 mode active
+
+interface Ethernet113/1/6
+  description LTRX8-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 36 mode active
+
+interface Ethernet113/1/7
+  description RMSS3-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 37 mode active
+
+interface Ethernet113/1/8
+  description RMSS4-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 38 mode active
+
+interface Ethernet113/1/9
+  description STORAGE5-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 39 mode active
+
+interface Ethernet113/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet113/1/11
+  description STORAGE6-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 41 mode active
+
+interface Ethernet113/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet113/1/13
+  description STORAGE7-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 43 mode active
+
+interface Ethernet113/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet113/1/15
+  description STORAGE8-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 45 mode active
+
+interface Ethernet113/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet114/1/1
+  description OAM2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,10,21
+  channel-group 31 mode active
+
+interface Ethernet114/1/2
+  description MONGO2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 32 mode active
+
+interface Ethernet114/1/3
+  description LTRX5-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 33 mode active
+
+interface Ethernet114/1/4
+  description LTRX6-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 34 mode active
+
+interface Ethernet114/1/5
+  description LTRX7-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 35 mode active
+
+interface Ethernet114/1/6
+  description LTRX8-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 36 mode active
+
+interface Ethernet114/1/7
+  description RMSS3-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 37 mode active
+
+interface Ethernet114/1/8
+  description RMSS4-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 38 mode active
+
+interface Ethernet114/1/9
+  description STORAGE5-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 39 mode active
+
+interface Ethernet114/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet114/1/11
+  description STORAGE6-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 41 mode active
+
+interface Ethernet114/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet114/1/13
+  description STORAGE7-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 43 mode active
+
+interface Ethernet114/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet114/1/15
+  description STORAGE8-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 45 mode active
+
+interface Ethernet114/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet115/1/1
+  description MP1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,21
+  channel-group 51 mode active
+
+interface Ethernet115/1/2
+  description PACKAGER1-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4-6,21
+  channel-group 52 mode active
+
+interface Ethernet115/1/3
+  description LTRXLTV9-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 53 mode active
+
+interface Ethernet115/1/4
+  description LTRXLTV10-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 54 mode active
+
+interface Ethernet115/1/5
+  description LTRXLTV11-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 55 mode active
+
+interface Ethernet115/1/6
+  description LTRXLTV12-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 56 mode active
+
+interface Ethernet115/1/7
+  description RMSS5-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 57 mode active
+
+interface Ethernet115/1/8
+  description RMSS6-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 58 mode active
+
+interface Ethernet115/1/9
+  description STORAGE9-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 59 mode active
+
+interface Ethernet115/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet115/1/11
+  description STORAGE10-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 61 mode active
+
+interface Ethernet115/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet115/1/13
+  description STORAGE11-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 63 mode active
+
+interface Ethernet115/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet115/1/15
+  description STORAGE12-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 65 mode active
+
+interface Ethernet115/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet116/1/1
+  description MP1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,21
+  channel-group 51 mode active
+
+interface Ethernet116/1/2
+  description PACKAGER1-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4-6,21
+  channel-group 52 mode active
+
+interface Ethernet116/1/3
+  description LTRXLTV9-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 53 mode active
+
+interface Ethernet116/1/4
+  description LTRXLTV10-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 54 mode active
+
+interface Ethernet116/1/5
+  description LTRXLTV11-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 55 mode active
+
+interface Ethernet116/1/6
+  description LTRXLTV12-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 56 mode active
+
+interface Ethernet116/1/7
+  description RMSS5-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 57 mode active
+
+interface Ethernet116/1/8
+  description RMSS6-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 58 mode active
+
+interface Ethernet116/1/9
+  description STORAGE9-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 59 mode active
+
+interface Ethernet116/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet116/1/11
+  description STORAGE10-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 61 mode active
+
+interface Ethernet116/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet116/1/13
+  description STORAGE11-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 63 mode active
+
+interface Ethernet116/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet116/1/15
+  description STORAGE12-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 65 mode active
+
+interface Ethernet116/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet117/1/1
+  description MP2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,21
+  channel-group 71 mode active
+
+interface Ethernet117/1/2
+  description PACKAGER2-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4-6,21
+  channel-group 72 mode active
+
+interface Ethernet117/1/3
+  description LTRXLTV13-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 73 mode active
+
+interface Ethernet117/1/4
+  description LTRXLTV14-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 74 mode active
+
+interface Ethernet117/1/5
+  description LTRXLTV15-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 75 mode active
+
+interface Ethernet117/1/6
+  description LTRXLTV16-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 76 mode active
+
+interface Ethernet117/1/7
+  description RMSS7-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 77 mode active
+
+interface Ethernet117/1/8
+  description RMSS8-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 78 mode active
+
+interface Ethernet117/1/9
+  description STORAGE13-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 79 mode active
+
+interface Ethernet117/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet117/1/11
+  description STORAGE14-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 81 mode active
+
+interface Ethernet117/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet117/1/13
+  description STORAGE15-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 83 mode active
+
+interface Ethernet117/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet117/1/15
+  description STORAGE16-eth0
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 85 mode active
+
+interface Ethernet117/1/16
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet118/1/1
+  description MP2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4,21
+  channel-group 71 mode active
+
+interface Ethernet118/1/2
+  description PACKAGER2-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,4-6,21
+  channel-group 72 mode active
+
+interface Ethernet118/1/3
+  description LTRXLTV13-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 73 mode active
+
+interface Ethernet118/1/4
+  description LTRXLTV14-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 74 mode active
+
+interface Ethernet118/1/5
+  description LTRXLTV15-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 75 mode active
+
+interface Ethernet118/1/6
+  description LTRXLTV16-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,20-21
+  channel-group 76 mode active
+
+interface Ethernet118/1/7
+  description RMSS7-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 77 mode active
+
+interface Ethernet118/1/8
+  description RMSS8-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-3,21
+  channel-group 78 mode active
+
+interface Ethernet118/1/9
+  description STORAGE13-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 79 mode active
+
+interface Ethernet118/1/10
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet118/1/11
+  description STORAGE14-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 81 mode active
+
+interface Ethernet118/1/12
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet118/1/13
+  description STORAGE15-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 83 mode active
+
+interface Ethernet118/1/14
+  description STORAGE-BLADE
+  shutdown
+
+interface Ethernet118/1/15
+  description STORAGE16-eth1
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 1-2,21
+  channel-group 85 mode active
+
+interface Ethernet118/1/16
+  description STORAGE-BLADE
+  shutdown
+clock timezone EST -5 0
+clock summer-time EDT 2 Sun Mar 02:00 1 Sun Nov 02:00 60
+line console
+line vty
+  access-class management-acl in
+boot kickstart bootflash:/n6000-uk9-kickstart.6.0.2.N2.3.bin
+boot system bootflash:/n6000-uk9.6.0.2.N2.3.bin 
+fabricpath domain default
+router bgp 65016
+  vrf drm
+    address-family ipv4 unicast
+      network 10.208.100.208/28
+      network 10.208.100.240/28
+      network 10.208.104.0/23
+      network 66.130.63.128/27
+      network 66.130.63.192/28
+    neighbor 10.23.202.21 remote-as 65432
+      bfd
+      address-family ipv4 unicast
+        prefix-list bkp-inbound-policy in
+        prefix-list bkp-outbound-policy out
+        soft-reconfiguration inbound
+    neighbor 10.170.182.145 remote-as 65432
+      bfd
+      address-family ipv4 unicast
+        prefix-list grt-inbound-policy in
+        prefix-list grt-outbound-policy out
+        soft-reconfiguration inbound
+    neighbor 10.170.182.149 remote-as 65432
+      bfd
+      address-family ipv4 unicast
+        prefix-list oam-inbound-policy in
+        prefix-list oam-outbound-policy out
+        soft-reconfiguration inbound
+    neighbor 10.170.182.161 remote-as 65432
+      bfd
+      address-family ipv4 unicast
+        prefix-list vts-inbound-policy in
+        prefix-list vts-outbound-policy out
+        soft-reconfiguration inbound
+    neighbor 10.170.182.165 remote-as 65432
+      bfd
+      address-family ipv4 unicast
+        prefix-list mez-inbound-policy in
+        prefix-list mez-outbound-policy out
+        soft-reconfiguration inbound
+    neighbor 192.168.144.1 remote-as 65016
+      bfd
+      update-source Vlan31
+      address-family ipv4 unicast
+        next-hop-self
+ip pim ssm range 232.0.0.0/8
+ip pim bfd
+ip igmp event-history group-events size large
+ip routing multicast event-history cli size large
+ip igmp snooping event-history vlan size large
+fabricpath switch-id 102
+
+
+switch-profile van-drm
+  sync-peers destination 192.168.128.10
+
+                
