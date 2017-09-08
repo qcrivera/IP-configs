@@ -1,6 +1,6 @@
 install feature-set fabricpath
 feature-set fabricpath
-hostname VL-MD-TVMRNX002
+hostname HOSTNAME2
 
 no feature telnet
 feature sftp-server
@@ -17,10 +17,10 @@ feature fex
 feature bfd
 
 logging level virtual-service 5
-username admin password 5 $1$IlH/LX1d$JVFbh.N8Mw8VaoW60dfay0  role network-admin
+username admin password 5  role network-admin
 no password strength-check
 
-banner motd #Nexus 6000 Switch
+banner motd #Nexus 6000 Switch 2
 #
 
 ip domain-lookup
@@ -66,8 +66,8 @@ fex 118
 bfd interval 400 min_rx 300 multiplier 3
 snmp-server contact "support@vantrix.com" 
 snmp-server location  "Dorion Prod Cache"
-snmp-server user admin network-admin auth md5 0x48600a113d97a28aa1d0baa099f04622 priv 0x48600a113d97a28aa1d0baa099f04622 localizedkey
-snmp-server host 10.208.105.180 traps version 2c v4ntr1xpubl1c 
+snmp-server user admin network-admin auth md5 <key> priv <key> localizedkey
+snmp-server host 10.208.105.180 traps version 2c <key>
 snmp-server host 10.208.105.180 use-vrf drm
 snmp-server host 10.208.105.180 source-interface Vlan2
 snmp-server enable traps callhome event-notify
